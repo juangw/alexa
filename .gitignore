@@ -1,5 +1,12 @@
+# Target files
+target/
+
 # Compiled class file
 *.class
+
+# Misc
+.classpath
+.project
 
 # Log file
 *.log

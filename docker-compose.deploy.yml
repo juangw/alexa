@@ -1,0 +1,8 @@
+version: '3'
+services:
+  lambda_bundler:
+    build:
+      context: ./
+    volumes:
+      - ./:/lambda_src
+    command: sh bundle_lambda.sh

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  alexa_apps: 
+    container_name: "alexa_apps"
+    environment:
+    - STAGE=dev 
+    build:
+      context: .
+    volumes:
+      - ~/.aws:/root/.aws
