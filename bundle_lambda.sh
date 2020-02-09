@@ -1,11 +1,9 @@
 set -e
 
-# Clean up any previous function.zip
-rm -rfv /lambda_src/function.zip
+# Clean up any previous jar file
+rm -rfv /lambda_src/app.jar
 
 cd /lambda
 
-ls -la
-
-# Zip the file for lambda code update
-zip -r9 /lambda_src/function.zip .
+# Move jar file to volume
+mv app.jar ../lambda_src/
