@@ -2,7 +2,9 @@ package com.alexa;
 
 
 public enum RequestTypes {
-    LAUNCH("LaunchRequest"), END("SessionEndedRequest");
+    LAUNCH("LaunchRequest"),
+    END("SessionEndedRequest"),
+    INTENT("IntentRequest");
 
     // declaring private variable for getting values 
     private String type;
