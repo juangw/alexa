@@ -1,6 +1,8 @@
 version: '3'
 services:
-  alexa_apps: 
+  alexa_apps:
+    tty: true
+    stdin_open: true
     container_name: "alexa_apps"
     environment:
     - STAGE=dev 
@@ -8,3 +10,5 @@ services:
       context: .
     volumes:
       - ~/.aws:/root/.aws
+    entrypoint:
+      - "/bin/bash"

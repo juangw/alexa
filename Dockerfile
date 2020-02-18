@@ -3,8 +3,6 @@ FROM lambci/lambda:build-java11
 COPY . /lambda
 WORKDIR /lambda
 
-RUN gradle build
-ARG JAR_FILE=build/libs/alexa-1.0-SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
-
-# ENTRYPOINT ["java", "-jar", "app.jar"]
+RUN ./gradlew build --warning-mode=all
+ARG ZIP_FILE=build/distributions/alexa.zip
+COPY ${ZIP_FILE} app.zip

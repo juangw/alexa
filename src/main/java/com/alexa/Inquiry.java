@@ -19,9 +19,9 @@ public class Inquiry implements RequestHandler<Object, String>{
         String jsonString = gson.toJson(request);
         try {
             JSONObject data = new JSONObject(jsonString);
-            final String intentRequest = RequestTypes.INTENT.getType();
+            final String launchRequest = RequestTypes.LAUNCH.getType();
             final String requestType = data.getJSONObject("request").getString("type");
-            if (!requestType.equals(intentRequest)) {
+            if (!requestType.equals(launchRequest)) {
                 LOGGER.info(String.format("Could not find request type in request: %s", data.toString()));
                 return null;
             }
