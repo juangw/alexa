@@ -13,7 +13,7 @@ public class Ticker {
     private static Logger LOGGER = Logger.getLogger("InfoLogging");
     private static String nameToTickerUrl = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=%s&region=1&lang=en&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
     
-    public static JSONObject getTickerFromName(final String name) throws IOException, InterruptedException {
+    public static JSONObject getTickersFromName(final String name) throws IOException, InterruptedException {
         final URL url = new URL(String.format(nameToTickerUrl, name));
         final HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -44,7 +44,7 @@ public class Ticker {
     public static void main(final String args[]) {
         final String stockName = args[0];
         try {
-            System.out.println(getTickerFromName(stockName));
+            System.out.println(getTickersFromName(stockName));
         } catch (final IOException | InterruptedException e) {
             e.printStackTrace();
         }
