@@ -78,13 +78,15 @@ public class Inquiry implements RequestHandler<Object, String>{
         }
         String statement = repromptStatement.concat(String.join(" or ", companies));
 
-        HashMap<String, String> outputSpeech = new HashMap<>();
-        outputSpeech.put("type", "PlainText");
-        outputSpeech.put("text", statement);
-        HashMap<String, Object> reprompt = new HashMap<>();
-        reprompt.put("version", "1.0");
-        reprompt.put("response", outputSpeech);
-        return reprompt;
+        HashMap<String, String> responseText = new HashMap<>();
+        responseText.put("type", "PlainText");
+        responseText.put("text", statement);
+        HashMap<String, Object> outputSpeech = new HashMap<>();
+        outputSpeech.put("outputSpeech", responseText);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("version", "1.0");
+        response.put("response", outputSpeech);
+        return response;
     }
 
     public static void main(final String args[]) {}
