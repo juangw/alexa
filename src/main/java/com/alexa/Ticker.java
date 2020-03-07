@@ -1,22 +1,53 @@
 package com.alexa;
 
+import org.json.*;
+ 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Ticker {
-    private static String nameToTickerUrl = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=ford&name=%s&region=1&lang=en&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
+    private static Logger LOGGER = Logger.getLogger("InfoLogging");
+    private static String nameToTickerUrl = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=%s&region=1&lang=en&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
     
-    public String getTickerFromName(final String name) throws IOException, InterruptedException {
-        final HttpClient client = HttpClient.newHttpClient();
-        final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(String.format(nameToTickerUrl, name)))
-                .build();
-        final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
-    }
-    public static void main(final String args[]) {}
-}
+    public static JSONObject getTickerFromName(final String name) throws IOException, InterruptedException {
+        URL url = new URL(String.format(nameToTickerUrl, name));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setConnectTimeout(5000);
+        con.setReadTimeout(5000);
 
+        int status = con.getResponseCode();
+        if (status == 200) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+			StringBuffer response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			// return result in json obj
+            String res = response.toString();
+            String data = res.substring(res.indexOf("(") + 1, res.indexOf(")") + 1);
+            JSONObject obj = new JSONObject(data);
+            return obj;
+        }
+        LOGGER.info("Failed to call yahoo finance to find stock ticker");
+        return null;
+    }
+
+    public static void main(final String args[]) {
+        String stockName = args[0];
+        try {
+            System.out.println(getTickerFromName(stockName));
+        } catch (final IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
 

@@ -36,7 +36,7 @@ public class Inquiry implements RequestHandler<Object, String>{
         if (intentName.equals("getStockPrice")) {
             Ticker ticker = new Ticker();
             try {
-                String stockTicker = ticker.getTickerFromName(stockName);
+                JSONObject stockTicker = ticker.getTickerFromName(stockName);
                 System.out.println(stockTicker);
             } catch (final IOException | InterruptedException e) {
                 e.printStackTrace();
