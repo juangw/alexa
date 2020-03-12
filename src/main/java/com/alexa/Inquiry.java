@@ -20,7 +20,6 @@ import org.json.JSONObject;
 
 public class Inquiry implements RequestHandler<Object, String>{
     private static Logger LOGGER = Logger.getLogger("InfoLogging");
-    private static String repromptStatement = "Did you want to search for: ";
 
     public String handleRequest(final Object request, final Context context) {
         System.out.println(request.toString()); 
@@ -34,13 +33,29 @@ public class Inquiry implements RequestHandler<Object, String>{
             e.printStackTrace();
             return null;
         }
-        final boolean isIntentResponse = confirmIntentResponse(data);
-        if (!isIntentResponse) {
-            return null;
+
+        final String requestType = data.getJSONObject("request").getString("type");
+        switch(requestType) {
+            case "IntentRequest":
+                final JSONObject intentData = data.getJSONObject("request").getJSONObject("intent");
+                final String intentName = intentData.getString("name");
+                final String stockName = intentData.getJSONObject("slots").getJSONObject("stockName").getString("value");
+                return handleIntentRequest(intentName, stockName);
+            case "LaunchRequest":
+                return handleLaunchRequest();
+            default:
+                LOGGER.info(String.format("%s not equal handled", requestType));
+                return null;
         }
-        final JSONObject intentData = data.getJSONObject("request").getJSONObject("intent");
-        final String intentName = intentData.getString("name");
-        final String stockName = intentData.getJSONObject("slots").getJSONObject("stockName").getString("value");
+    }
+
+    private String handleLaunchRequest() {
+        final HashMap<String, Object> response = buildResponse("response", "Starting Alexa skill");
+        final Gson gsonBuilder = new GsonBuilder().create();
+        return gsonBuilder.toJson(response);
+    }
+
+    private String handleIntentRequest(final String intentName, final String stockName) {
         if (intentName.equals("getStockPrice")) {
             try {
                 final JSONObject stockTickersData = getTickersFromName(stockName);
@@ -56,36 +71,41 @@ public class Inquiry implements RequestHandler<Object, String>{
                 return null;
             }
         }
-        return "1";
-    }
-
-    private boolean confirmIntentResponse(final JSONObject data) {
-        final String intentRequest = RequestTypes.INTENT.getType();
-        final String requestType = data.getJSONObject("request").getString("type");
-        if (!requestType.equals(intentRequest)) {
-            LOGGER.info(String.format("%s not equal to %s", requestType, intentRequest));
-            return false;
-        }
-        return true;
+        LOGGER.info("Unhandled intent");
+        return null;
     }
 
     private HashMap<String, Object> getRepromptFromNames(final JSONObject tickersResponse) {
+        final String repromptStatement = "Did you want to search for: ";
         final List<String> companies = new ArrayList<>();
         final JSONArray stockTickers = tickersResponse.getJSONObject("ResultSet").getJSONArray("Result");
         for (final Object stock : stockTickers) {
             final JSONObject stockData = (JSONObject) stock;
             companies.add(stockData.getString("name"));
         }
-        String statement = repromptStatement.concat(String.join(" or ", companies));
+        final String statement = repromptStatement.concat(String.join(" or ", companies));
 
-        HashMap<String, String> responseText = new HashMap<>();
+        final HashMap<String, Object> response = buildResponse("reprompt", statement);
+        return response;
+    }
+
+    private HashMap<String, Object> buildResponse(final String type, final String text) {
+        final HashMap<String, String> responseText = new HashMap<>();
         responseText.put("type", "PlainText");
-        responseText.put("text", statement);
-        HashMap<String, Object> outputSpeech = new HashMap<>();
+        responseText.put("text", text);
+        final HashMap<String, Object> outputSpeech = new HashMap<>();
         outputSpeech.put("outputSpeech", responseText);
-        HashMap<String, Object> response = new HashMap<>();
+        final HashMap<String, Object> response = new HashMap<>();
         response.put("version", "1.0");
-        response.put("response", outputSpeech);
+
+        if (type.equals("reprompt")) {
+            final HashMap<String, Object> reprompt = new HashMap<>();
+            reprompt.put("reprompt", outputSpeech);
+            response.put("response", reprompt);
+            response.put("shouldEndSession", false);
+        } else {
+            response.put("response", outputSpeech);
+        }
         return response;
     }
 

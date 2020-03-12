@@ -9,12 +9,12 @@ public enum RequestTypes {
     // declaring private variable for getting values 
     private String type;
 
-    RequestTypes(String requestType) {
+    RequestTypes(final String requestType) {
         this.type = requestType;
     }
  
-    // getter method 
-    public String getType() {
+    // getter method
+    final public String getType() {
         return this.type;
     }
 }
